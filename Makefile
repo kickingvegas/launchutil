@@ -16,7 +16,19 @@
 INSTALL_DIR=$(HOME)/bin
 EXEC_NAME=launchutil
 
-.PHONY: help install
+.PHONY: install uninstall \
+help \
+base-help \
+create-help \
+install-help \
+uninstall-help \
+bootstrap-help \
+bootout-help \
+reload-help \
+enable-help \
+disable-help \
+print-help
+
 
 $(INSTALL_DIR):
 	mkdir $(INSTALL_DIR)
@@ -38,7 +50,6 @@ reload-help \
 enable-help \
 disable-help \
 print-help
-
 
 base-help:
 	./$(EXEC_NAME).py -h

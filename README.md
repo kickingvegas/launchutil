@@ -1,7 +1,5 @@
 # launchutil -  utility to create and run a simple launchd service
 
-**NOTE: THIS IS WIP**
-
 # Summary
 
 **launchutil** is a helper utility to support creating and running a simple `launchd` service that is run daily. It is intended to make working with `launchd` more ergonomic by allowing a service to be specified by either its service name (aka label) or by its property list file name which is typically the same with a `.plist` extension. **launchutil** invokes `launchctl` commands to manage the service lifecycle. 
@@ -24,26 +22,25 @@ Alternately, you can use short arguments to achieve the same result.
 $ launchutil create -p /usr/bin/say -a hello there -d 14:00 15:15 -x com.yummymelon.sayhello
 ```
 
-
 Note that all commands that change state *must* have the `--execute` or `-x` argument provided. If not, then a message saying what the command would do is sent to `stderr`.
 
 ## Install the service plist
 The following command installs the launchd service plist file into `~/Library/LaunchAgents`.
 
-```Shell
+```
 $ launchutil install com.yummymelon.sayhello.plist -x 
 ```
 
 ## Start (aka bootstrap, start) the service
 
-```Shell
+```
 $ launchutil bootstrap com.yummymelon.sayhello.plist -x 
 ```
 Aliases for `bootstrap` are `s` and `start`.
 
 ##  Print (aka list, status) the service 
 
-```Shell
+```
 $ launchutil print com.yummymelon.sayhello.plist 
 ```
 Aliases for `print` are `p`, `list`, and `status`.
@@ -54,19 +51,18 @@ It is a common desire to modify the service schedule and reload the service.
 
 To update the schedule to run at 15:00 (3pm) and 15:20 (3:20pm):
 
-```Shell
+```
 $ launchutil create -p /usr/bin/say -a hello there -d 15:00 15:20 -x com.yummymelon.sayhello.plist
 ```
-
 Install the updated file `com.yummymelon.sayhello.plist` and reload the service:
 
-```Shell
+```
 $ launchutil reload --install --execute com.yummymelon.sayhello.plist
 ```
 
 ## Stop (aka bootout, stop) the service
 
-```Shell
+```
 $ launchutil bootout com.yummymelon.sayhello.plist -x 
 ```
 
@@ -74,13 +70,15 @@ Aliases for `bootout` are `t` and `stop`.
 
 ## Uninstall the service plist
 
-```Shell
+```
 $ launchutil uninstall com.yummymelon.sayhello.plist -x 
 ```
 
 # Usage
 
-```Shell
+## Top Level Commands
+
+```
 usage: launchutil [-h] [-v]
                   {create,c,install,i,uninstall,u,bootstrap,s,start,bootout,t,stop,reload,r,restart,enable,e,disable,d,print,p,list,status}
                   ...
@@ -112,24 +110,207 @@ more ergonomic by allowing specification of the service be either by its
 service name (aka label) or by plist file name defining the service.
 ```
 
+Note that command aliases are supported, for example, `s` and `start` are aliases for `bootstrap`.
+
+## Create Command
+
+```
+usage: launchutil create [-h] [-o OUTPUT] [-x] -p PROGRAM
+                         [-a PROGRAM_ARGUMENTS [PROGRAM_ARGUMENTS ...]]
+                         [-d DAILY [DAILY ...]] [-w WORKING_DIRECTORY]
+                         [-O STANDARD_OUT_PATH] [-E STANDARD_ERROR_PATH]
+                         service
+
+Create launchd service plist file to run a job on a daily basis. The file name
+is the same as the `service` argument with a .plist extension.
+
+positional arguments:
+  service               service name or its plist file (typically in form of
+                        com.domain.servicename)
+
+options:
+  -h, --help            show this help message and exit
+  -o OUTPUT, --output OUTPUT
+                        output file (- for stdout)
+  -x, --execute         execute command
+  -p PROGRAM, --program PROGRAM
+                        full path to launchd job program
+  -a PROGRAM_ARGUMENTS [PROGRAM_ARGUMENTS ...], --program-arguments PROGRAM_ARGUMENTS [PROGRAM_ARGUMENTS ...]
+                        arguments to launchd job program; do not use this
+                        argument before the `service` argument
+  -d DAILY [DAILY ...], --daily DAILY [DAILY ...]
+                        configure StartCalendarInterval for daily behavior
+                        with a 24-hour time stamp (HH:MM); multiple times in a
+                        day are space separated; do not use this argument
+                        before the `service` argument
+  -w WORKING_DIRECTORY, --working-directory WORKING_DIRECTORY
+                        specify a directory to chdir to before running the
+                        launchd job
+  -O STANDARD_OUT_PATH, --standard-out-path STANDARD_OUT_PATH
+                        file to write the launchd job stdout to
+  -E STANDARD_ERROR_PATH, --standard-error-path STANDARD_ERROR_PATH
+                        file to write the launchd job stderr to
+```
+
+## Install Command
+
+```
+usage: launchutil install [-h] [-o OUTPUT] [-x] service
+
+Install launchd service plist file in ~/Library/LaunchAgents.
+
+positional arguments:
+  service               service name or its plist file (typically in form of
+                        com.domain.servicename)
+
+options:
+  -h, --help            show this help message and exit
+  -o OUTPUT, --output OUTPUT
+                        output file (- for stdout)
+  -x, --execute         execute command
+./launchutil.py uninstall -h
+usage: launchutil uninstall [-h] [-o OUTPUT] [-x] service
+
+Uninstall launchd service plist file in ~/Library/LaunchAgents.
+
+positional arguments:
+  service               service name or its plist file (typically in form of
+                        com.domain.servicename)
+
+options:
+  -h, --help            show this help message and exit
+  -o OUTPUT, --output OUTPUT
+                        output file (- for stdout)
+  -x, --execute         execute command
+```
+
+## Bootstrap Command
+
+```  
+
+usage: launchutil bootstrap [-h] [-o OUTPUT] [-x] service
+
+Bootstrap (aka load) launchd service.
+
+positional arguments:
+  service               service name or its plist file (typically in form of
+                        com.domain.servicename)
+
+options:
+  -h, --help            show this help message and exit
+  -o OUTPUT, --output OUTPUT
+                        output file (- for stdout)
+  -x, --execute         execute command
+```
+
+## Bootout Command
+
+```
+usage: launchutil bootout [-h] [-o OUTPUT] [-x] service
+
+Bootout (aka unload) launchd service.
+
+positional arguments:
+  service               service name or its plist file (typically in form of
+                        com.domain.servicename)
+
+options:
+  -h, --help            show this help message and exit
+  -o OUTPUT, --output OUTPUT
+                        output file (- for stdout)
+  -x, --execute         execute command
+```
+
+## Reload Command
+
+```
+usage: launchutil reload [-h] [-o OUTPUT] [-x] [-i] service
+
+Reload (aka restart) launchd service. Optionally install launchd service plist
+file in current directory before reloading.
+
+positional arguments:
+  service               service name or its plist file (typically in form of
+                        com.domain.servicename)
+
+options:
+  -h, --help            show this help message and exit
+  -o OUTPUT, --output OUTPUT
+                        output file (- for stdout)
+  -x, --execute         execute command
+  -i, --install         install service plist to ~/Library/LaunchAgents
+```
+
+## Enable Command
+
+```
+usage: launchutil enable [-h] [-o OUTPUT] [-x] service
+
+Enable launchd service.
+
+positional arguments:
+  service               service name or its plist file (typically in form of
+                        com.domain.servicename)
+
+options:
+  -h, --help            show this help message and exit
+  -o OUTPUT, --output OUTPUT
+                        output file (- for stdout)
+  -x, --execute         execute command
+```
+
+## Disable Command
+
+```
+usage: launchutil disable [-h] [-o OUTPUT] [-x] service
+
+Disable launchd service.
+
+positional arguments:
+  service               service name or its plist file (typically in form of
+                        com.domain.servicename)
+
+options:
+  -h, --help            show this help message and exit
+  -o OUTPUT, --output OUTPUT
+                        output file (- for stdout)
+  -x, --execute         execute command
+```
+
+## Print Command
+
+```
+usage: launchutil print [-h] [-o OUTPUT] [-x] service
+
+Print launchd service information/status.
+
+positional arguments:
+  service               service name or its plist file (typically in form of
+                        com.domain.servicename)
+
+options:
+  -h, --help            show this help message and exit
+  -o OUTPUT, --output OUTPUT
+                        output file (- for stdout)
+  -x, --execute         execute command
+
+```
+
 # Install
 
 Installation of `launchutil` is via a `Makefile` target `install`. It is invoked as shown below.
 
-```Shell
+```
 $ make install
 ```
 
 In the `Makefile` the `INSTALL_DIR` is set to `$(HOME)/bin` which will be created if it does not already exist. `$(HOME)/bin` should also be in your `PATH` environment variable. If you wish `INSTALL_DIR` to be different, the `INSTALL_DIR` in the `Makefile` to your preference before running `make install`.
 
-# Running `launchutil`
 
-TBD
+# Environment 
 
-```Shell
-$ launchutil
-```
-
+- Tested on macOS Ventura 13.4. 
+- Python 3.9+
 
 # License
 
