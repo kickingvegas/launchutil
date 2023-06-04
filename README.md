@@ -2,7 +2,19 @@
 
 # Summary
 
-**launchutil** is a helper utility to support creating and running a simple `launchd` service that is run daily. It is intended to make working with `launchd` more ergonomic by allowing a service to be specified by either its service name (aka label) or by its property list file name which is typically the same with a `.plist` extension. **launchutil** invokes `launchctl` commands to manage the service lifecycle. 
+**launchutil** is a command line utility to support creating and running a simple `launchd` service that is run daily. It is intended to make working with `launchd` more ergonomic by allowing a service to be specified by either its service name (aka label) or by its property list file (`<service name>.plist`). **launchutil** invokes `launchctl` commands to manage the service's lifecycle. 
+
+# Install
+
+Installation of **launchutil** is via the `Makefile` target `install`. It is invoked as shown below:
+
+```
+$ make install
+```
+
+The `install` target will install **launchutil** in `INSTALL_DIR`, which by default is set to `$(HOME)/bin`. If `INSTALL_DIR` does not exist, the `install` target will create it. `$(HOME)/bin` should also be in your `PATH` environment variable. 
+
+If you wish `INSTALL_DIR` to be different, edit the `Makefile` to your preference before running `make install`.
 
 # Example
 
@@ -203,6 +215,27 @@ options:
   -x, --execute         execute command
 ```
 
+## Print Command
+
+```
+usage: launchutil print [-h] [-o OUTPUT] [-x] service
+
+Print launchd service information/status.
+
+positional arguments:
+  service               service name or its plist file (typically in form of
+                        com.domain.servicename)
+
+options:
+  -h, --help            show this help message and exit
+  -o OUTPUT, --output OUTPUT
+                        output file (- for stdout)
+  -x, --execute         execute command
+
+```
+
+Note that because `print` is a read-only operation, the `--execute` argument is optional.
+
 ## Bootout Command
 
 ```
@@ -276,36 +309,6 @@ options:
                         output file (- for stdout)
   -x, --execute         execute command
 ```
-
-## Print Command
-
-```
-usage: launchutil print [-h] [-o OUTPUT] [-x] service
-
-Print launchd service information/status.
-
-positional arguments:
-  service               service name or its plist file (typically in form of
-                        com.domain.servicename)
-
-options:
-  -h, --help            show this help message and exit
-  -o OUTPUT, --output OUTPUT
-                        output file (- for stdout)
-  -x, --execute         execute command
-
-```
-
-# Install
-
-Installation of `launchutil` is via a `Makefile` target `install`. It is invoked as shown below.
-
-```
-$ make install
-```
-
-In the `Makefile` the `INSTALL_DIR` is set to `$(HOME)/bin` which will be created if it does not already exist. `$(HOME)/bin` should also be in your `PATH` environment variable. If you wish `INSTALL_DIR` to be different, the `INSTALL_DIR` in the `Makefile` to your preference before running `make install`.
-
 
 # Environment 
 
