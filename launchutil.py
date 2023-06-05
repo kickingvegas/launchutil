@@ -113,7 +113,7 @@ class CommandLineParser:
             'description': """Bootstrap (aka load) launchd service.""",
             'help': 'bootstrap the launchd service',
             'hook': bootstrap_hook,
-            'aliases': ['s', 'start'] 
+            'aliases': ['s', 'start', 'load'] 
         })
 
         tempList.append({
@@ -121,7 +121,7 @@ class CommandLineParser:
             'description': """Bootout (aka unload) launchd service.""",
             'help': 'bootout the launchd service',
             'hook': bootout_hook,
-            'aliases': ['t', 'stop']
+            'aliases': ['t', 'stop', 'unload']
         })
 
         tempList.append({
