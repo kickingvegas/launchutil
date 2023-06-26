@@ -24,7 +24,7 @@ import plistlib
 import shutil
 import re
 
-VERSION = "0.1.0"
+VERSION = "0.2.0"
 
 def create_hook(args):
     LaunchdCreate(args).run()
@@ -52,6 +52,9 @@ def disable_hook(args):
 
 def print_hook(args):
     LaunchdPrint(args).run()
+
+def dir_hook(args):
+    LaunchdDir(args).run()
 
 def base_hook(args):
     print('wat')
@@ -158,6 +161,14 @@ class CommandLineParser:
             'aliases': ['p', 'list', 'status']
         })
 
+        tempList.append({
+            'prog': 'dir',
+            'description': 'List service directory.',
+            'help': 'print the launchd service status',
+            'hook': dir_hook,
+            'aliases': []
+        })
+        
         subparsers = self.parser.add_subparsers()
 
         subparserDB = {}
@@ -191,9 +202,10 @@ class CommandLineParser:
                      action='store_true',
                      help='execute command')
 
-        add_argument('service',
-                     action='store',
-                     help='service name or its plist file (typically in form of com.domain.servicename)')
+        if cmdDict['prog'] != 'dir':
+            add_argument('service',
+                         action='store',
+                         help='service name or its plist file (typically in form of com.domain.servicename)')
         
         subparser.set_defaults(func=cmdDict['hook'])
         return subparser
@@ -251,20 +263,25 @@ class LaunchdBase:
         self.stdin = sys.stdin
         self.stderr = sys.stderr
         self.args = args
-    
+
+        hasService = 'service' in args
+
         if args.output != '-':
             outfile = open('{0}'.format(args.output), 'w')
             self.stdout = outfile
 
-        # Coerce service if it ends in ".plist"
-        pat = re.compile(r'([\w\.]*).plist$')
-        matchObj = pat.match(self.args.service)
-        if matchObj:
-            # print(matchObj.group(1))
-            self.args.service = matchObj.group(1)
+        if hasService:
+            # Coerce service if it ends in ".plist"
+            pat = re.compile(r'([\w\.]*).plist$')
+            matchObj = pat.match(self.args.service)
+            if matchObj:
+                # print(matchObj.group(1))
+                self.args.service = matchObj.group(1)
 
     def run(self):
-        print(self.args.service)
+        if 'service' in self.args:
+            print(self.args.service)
+            
 
 class LaunchdInstall(LaunchdBase):
     def __init__(self, args):
@@ -459,6 +476,21 @@ class LaunchdPrint(LaunchdBase):
                    'print',
                    loginSpecifier]
 
+        subprocess.call(cmdList, stdout=self.stdout)
+
+class LaunchdDir(LaunchdBase):
+    def __init__(self, args):
+        super().__init__(args)
+
+    def run(self):
+        target = '{0}/Library/LaunchAgents/'.format(os.environ['HOME'])
+        
+        cmdList = [
+            'ls',
+            '-l',
+            target
+            ]
+            
         subprocess.call(cmdList, stdout=self.stdout)
         
 
