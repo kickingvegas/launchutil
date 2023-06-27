@@ -164,7 +164,7 @@ class CommandLineParser:
         tempList.append({
             'prog': 'dir',
             'description': 'List service directory.',
-            'help': 'print the launchd service status',
+            'help': 'list the service directory',
             'hook': dir_hook,
             'aliases': []
         })
