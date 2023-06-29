@@ -93,19 +93,15 @@ class CommandLineParser:
         
         tempList.append({
             'prog': 'install',
-            'description': """Install launchd service plist file in
-            ~/Library/LaunchAgents. 
-            """,
+            'description': "Install launchd service plist file in --path.",
             'help': 'install launchd service file',
             'hook': install_hook,
             'aliases': ['i']            
         })
 
-
         tempList.append({
             'prog': 'uninstall',
-            'description': """Uninstall launchd service plist file in
-            ~/Library/LaunchAgents.""",
+            'description': "Uninstall launchd service plist file in --path.",
             'help': 'uninstall launchd service file',
             'hook': uninstall_hook,
             'aliases': ['u']
@@ -206,17 +202,23 @@ class CommandLineParser:
             add_argument('service',
                          action='store',
                          help='service name or its plist file (typically in form of com.domain.servicename)')
+
+        if cmdDict['prog'] in ('install', 'uninstall', 'dir', 'bootstrap', 'bootout', 'reload'):
+            defaultPath = '{}/Library/LaunchAgents'.format(os.environ['HOME'])
+            add_argument('-p', '--path',
+                         action='store',
+                         default=defaultPath,
+                         help='launchd script directory (default: {})'.format(defaultPath))
         
         subparser.set_defaults(func=cmdDict['hook'])
         return subparser
         
     def addReloadArgs(self, subparser):
         add_argument = subparser.add_argument
-        installPath = '~/Library/LaunchAgents'
         
         add_argument('-i', '--install',
                      action='store_true',
-                     help='install service plist to {0}'.format(installPath))
+                     help='install service plist to --path')
 
     def addCreateArgs(self, subparser):
         add_argument = subparser.add_argument
@@ -289,10 +291,8 @@ class LaunchdInstall(LaunchdBase):
 
     def run(self):
         service = self.args.service
-
         source = '{0}.plist'.format(service)
-        target = '{0}/Library/LaunchAgents/{1}.plist'.format(os.environ['HOME'],
-                                                             service)
+        target = os.path.join(self.args.path, source)
         if not os.path.exists(source):
             self.stderr.write('ERROR: "{0}" does not exist.\n'.format(source))
             sys.exit(os.EX_NOINPUT)
@@ -313,9 +313,8 @@ class LaunchdUninstall(LaunchdBase):
 
     def run(self):
         service = self.args.service
-
-        target = '{0}/Library/LaunchAgents/{1}.plist'.format(os.environ['HOME'],
-                                                             service)
+        source = '{0}.plist'.format(service)
+        target = os.path.join(self.args.path, source)
 
         if not os.path.exists(target):
             self.stderr.write('ERROR: "{0}" does not exist.\n'.format(target))
@@ -334,10 +333,9 @@ class LaunchdBootstrap(LaunchdBase):
 
     def run(self):
         service = self.args.service
+        source = '{0}.plist'.format(service)
+        target = os.path.join(self.args.path, source)
         uid = os.getuid()
-
-        target = '{0}/Library/LaunchAgents/{1}.plist'.format(os.environ['HOME'],
-                                                             service)
         
         cmdList = ['launchctl',
                    'bootstrap',
@@ -357,10 +355,9 @@ class LaunchdBootout(LaunchdBase):
 
     def run(self):
         service = self.args.service
+        source = '{0}.plist'.format(service)
+        target = os.path.join(self.args.path, source)
         uid = os.getuid()
-
-        target = '{0}/Library/LaunchAgents/{1}.plist'.format(os.environ['HOME'],
-                                                             service)
 
         cmdList = ['launchctl',
                    'bootout',
@@ -380,11 +377,9 @@ class LaunchdReload(LaunchdBase):
         
     def run(self):
         service = self.args.service
-        uid = os.getuid()
-
         source = '{0}.plist'.format(service)
-        target = '{0}/Library/LaunchAgents/{1}.plist'.format(os.environ['HOME'],
-                                                             service)
+        target = os.path.join(self.args.path, source)
+        uid = os.getuid()
         
         if self.args.install:
             if not os.path.exists(source):
@@ -483,14 +478,13 @@ class LaunchdDir(LaunchdBase):
         super().__init__(args)
 
     def run(self):
-        target = '{0}/Library/LaunchAgents/'.format(os.environ['HOME'])
+        target = args.path
         
         cmdList = [
             'ls',
             '-l',
             target
             ]
-            
         subprocess.call(cmdList, stdout=self.stdout)
         
 
