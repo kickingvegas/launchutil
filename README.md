@@ -92,25 +92,27 @@ $ launchutil uninstall com.yummymelon.sayhello.plist -x
 
 ```
 usage: launchutil [-h] [-v]
-                  {create,c,install,i,uninstall,u,bootstrap,s,start,bootout,t,stop,reload,r,restart,enable,e,disable,d,print,p,list,status}
+                  {create,c,install,i,uninstall,u,bootstrap,s,start,load,bootout,t,stop,unload,reload,r,restart,enable,e,disable,d,print,p,list,status,dir}
                   ...
 
 Utility to create and run a simple launchd service.
 
 positional arguments:
-  {create,c,install,i,uninstall,u,bootstrap,s,start,bootout,t,stop,reload,r,restart,enable,e,disable,d,print,p,list,status}
+  {create,c,install,i,uninstall,u,bootstrap,s,start,load,bootout,t,stop,unload,reload,r,restart,enable,e,disable,d,print,p,list,status,dir}
     create (c)          create launchd service plist file
     install (i)         install launchd service file
     uninstall (u)       uninstall launchd service file
-    bootstrap (s, start)
+    bootstrap (s, start, load)
                         bootstrap the launchd service
-    bootout (t, stop)   bootout the launchd service
+    bootout (t, stop, unload)
+                        bootout the launchd service
     reload (r, restart)
                         reload the launchd service
     enable (e)          enable the launchd service
     disable (d)         disable the launchd service
     print (p, list, status)
                         print the launchd service status
+    dir                 list the service directory
 
 options:
   -h, --help            show this help message and exit
@@ -167,23 +169,9 @@ options:
 ## Install Command
 
 ```
-usage: launchutil install [-h] [-o OUTPUT] [-x] service
+usage: launchutil install [-h] [-o OUTPUT] [-x] [-p PATH] service
 
-Install launchd service plist file in ~/Library/LaunchAgents.
-
-positional arguments:
-  service               service name or its plist file (typically in form of
-                        com.domain.servicename)
-
-options:
-  -h, --help            show this help message and exit
-  -o OUTPUT, --output OUTPUT
-                        output file (- for stdout)
-  -x, --execute         execute command
-./launchutil.py uninstall -h
-usage: launchutil uninstall [-h] [-o OUTPUT] [-x] service
-
-Uninstall launchd service plist file in ~/Library/LaunchAgents.
+Install launchd service plist file in --path.
 
 positional arguments:
   service               service name or its plist file (typically in form of
@@ -194,13 +182,14 @@ options:
   -o OUTPUT, --output OUTPUT
                         output file (- for stdout)
   -x, --execute         execute command
+  -p PATH, --path PATH  launchd script directory (default:
+                        ~/Library/LaunchAgents)
 ```
 
 ## Bootstrap Command
 
-```  
-
-usage: launchutil bootstrap [-h] [-o OUTPUT] [-x] service
+```
+usage: launchutil bootstrap [-h] [-o OUTPUT] [-x] [-p PATH] service
 
 Bootstrap (aka load) launchd service.
 
@@ -213,6 +202,8 @@ options:
   -o OUTPUT, --output OUTPUT
                         output file (- for stdout)
   -x, --execute         execute command
+  -p PATH, --path PATH  launchd script directory (default:
+                        ~/Library/LaunchAgents)
 ```
 
 ## Print Command
@@ -231,7 +222,6 @@ options:
   -o OUTPUT, --output OUTPUT
                         output file (- for stdout)
   -x, --execute         execute command
-
 ```
 
 Note that because `print` is a read-only operation, the `--execute` argument is optional.
@@ -239,7 +229,7 @@ Note that because `print` is a read-only operation, the `--execute` argument is 
 ## Bootout Command
 
 ```
-usage: launchutil bootout [-h] [-o OUTPUT] [-x] service
+usage: launchutil bootout [-h] [-o OUTPUT] [-x] [-p PATH] service
 
 Bootout (aka unload) launchd service.
 
@@ -252,12 +242,14 @@ options:
   -o OUTPUT, --output OUTPUT
                         output file (- for stdout)
   -x, --execute         execute command
+  -p PATH, --path PATH  launchd script directory (default:
+                        ~/Library/LaunchAgents)
 ```
 
 ## Reload Command
 
 ```
-usage: launchutil reload [-h] [-o OUTPUT] [-x] [-i] service
+usage: launchutil reload [-h] [-o OUTPUT] [-x] [-p PATH] [-i] service
 
 Reload (aka restart) launchd service. Optionally install launchd service plist
 file in current directory before reloading.
@@ -271,7 +263,9 @@ options:
   -o OUTPUT, --output OUTPUT
                         output file (- for stdout)
   -x, --execute         execute command
-  -i, --install         install service plist to ~/Library/LaunchAgents
+  -p PATH, --path PATH  launchd script directory (default:
+                        ~/Library/LaunchAgents)
+  -i, --install         install service plist to --path
 ```
 
 ## Enable Command
