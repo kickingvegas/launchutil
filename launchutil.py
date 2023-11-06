@@ -204,11 +204,13 @@ class CommandLineParser:
                          help='service name or its plist file (typically in form of com.domain.servicename)')
 
         if cmdDict['prog'] in ('install', 'uninstall', 'dir', 'bootstrap', 'bootout', 'reload'):
-            defaultPath = '{}/Library/LaunchAgents'.format(os.environ['HOME'])
+            relativePath = 'Library/LaunchAgents'
+            helpDocPath = '~/{}'.format(relativePath)
+            defaultPath = os.path.join(os.environ['HOME'], relativePath)
             add_argument('-p', '--path',
                          action='store',
                          default=defaultPath,
-                         help='launchd script directory (default: {})'.format(defaultPath))
+                         help='launchd script directory (default: {})'.format(helpDocPath))
         
         subparser.set_defaults(func=cmdDict['hook'])
         return subparser
